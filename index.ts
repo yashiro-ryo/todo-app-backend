@@ -1,7 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import database from "./service/database";
 import cors from "cors";
-import authService from "./service/authService";
 
 const app: Application = express();
 const PORT = 3030;

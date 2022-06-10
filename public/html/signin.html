@@ -33,34 +33,43 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
+    async function sha256(text) {
+      const uint8 = new TextEncoder().encode(text)
+      const digest = await crypto.subtle.digest('SHA-256', uint8)
+      return Array.from(new Uint8Array(digest)).map(v => v.toString(16).padStart(2, '0')).join('')
+    }
+
     function handleSubmit() {
       var formEmail = document.getElementById('form-email');
       var formPass = document.getElementById('form-pass');
       var errorMsg = document.getElementById('error-msg')
       // validation 
-      if(formEmail.length == 0 || formPass.length == 0){
+      if (formEmail.length == 0 || formPass.length == 0) {
         return
       }
-      // post signin data
-      axios.post('http://localhost:3030/signin', {
-        userEmail: formEmail.value,
-        userPass: formPass.value
-      }).then((result) => {
-        if(result.data.userId == null){
-          // ログインできなかった
-          errorMsg.innerText = result.data.errorMsg
-        }else {
-          // ログイン成功
-          if(result.data.userId == null || result.data.userName == null){
-            return
+      // password hash
+      sha256(formPass.value).then((passwordHashed) => {
+        // post signin data
+        axios.post('http://localhost:3030/signin', {
+          userEmail: formEmail.value,
+          userPass: passwordHashed
+        }).then((result) => {
+          if (result.data.userId == null) {
+            // ログインできなかった
+            errorMsg.innerText = result.data.errorMsg
+          } else {
+            // ログイン成功
+            if (result.data.userId == null || result.data.userName == null) {
+              return
+            }
+            localStorage.setItem("data-user-name", result.data.userName)
+            localStorage.setItem("data-user-id", result.data.userId)
+            // redirect
+            window.location.href = "http://localhost:3030/dashboard"
           }
-          localStorage.setItem("data-user-name", result.data.userName)
-          localStorage.setItem("data-user-id", result.data.userId)
-          // redirect
-          window.location.href="http://localhost:3030/dashboard"
-        }
-      }).catch((e) => {
-        console.log('error :' + e)
+        }).catch((e) => {
+          console.log('error :' + e)
+        })
       })
     }
   </script>

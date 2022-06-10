@@ -64,6 +64,8 @@ async function signin(userEmail: string, userPass: string) {
       return { userId: null, errorMsg: "一致するユーザーが存在しません." };
     }
 
+    console.log('userPass input :' + userPass);
+    console.log('userPass db :' + result[0].user_pass_hashed)
     if (userPass === result[0].user_pass_hashed) {
       // 将来的にはトークンにする
       return {
