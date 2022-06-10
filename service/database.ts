@@ -23,14 +23,22 @@ async function signin(userEmail: string, userPass: string) {
     );
     con.end();
     if (result.length != 1) {
-      return {userId: null, errorMsg: '一致するユーザーが存在しません.'};
+      return { userId: null, errorMsg: "一致するユーザーが存在しません." };
     }
 
     if (userPass === result[0].user_pass_hashed) {
       // 将来的にはトークンにする
-      return {userId: result[0].user_id, userName: result[0].user_name, errorMsg: ''};
+      return {
+        userId: result[0].user_id,
+        userName: result[0].user_name,
+        errorMsg: "",
+      };
     } else {
-      return {userId: null, userName: null, errorMsg: 'パスワードが違います.'};
+      return {
+        userId: null,
+        userName: null,
+        errorMsg: "パスワードが違います.",
+      };
     }
   } catch (e) {
     console.log(e);
