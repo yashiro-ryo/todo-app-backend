@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/signin.css" />
+  <title>ToDoアプリ ログイン
+  </title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="signin-form">
+      <div class="app-name">
+        <p>ToDo アプリ</p>
+      </div>
+      <div class="card">
+        <form class="form" method="post">
+          <p>メールアドレス</p>
+          <input class="form-input" id="form-email" type="email" placeholder="メールアドレス" name="userEmail" required />
+          <p>パスワード</p>
+          <input class="form-input" id="form-pass" type="password" placeholder="パスワード" name="userPass" required />
+        </form>
+        <p id="error-msg"></p>
+        <button class="btn btn-primary" onclick="handleSubmit()">ログイン</button>
+        <div class="form-footer">
+          <a href="signup">アカウント作成</a><br>
+          <a href="signup">パスワードを忘れた方はこちら</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    function handleSubmit() {
+      var formEmail = document.getElementById('form-email');
+      var formPass = document.getElementById('form-pass');
+      var errorMsg = document.getElementById('error-msg')
+      // validation 
+      if(formEmail.length == 0 || formPass.length == 0){
+        return
+      }
+      // post signin data
+      axios.post('http://localhost:3030/signin', {
+        userEmail: formEmail.value,
+        userPass: formPass.value
+      }).then((result) => {
+        if(result.data.userId == null){
+          // ログインできなかった
+          errorMsg.innerText = result.data.errorMsg
+        }else {
+          // ログイン成功
+          if(result.data.userId == null || result.data.userName == null){
+            return
+          }
+          localStorage.setItem("data-user-name", result.data.userName)
+          localStorage.setItem("data-user-id", result.data.userId)
+          // redirect
+          window.location.href="http://localhost:3030/dashboard"
+        }
+      }).catch((e) => {
+        console.log('error :' + e)
+      })
+    }
+  </script>
+</body>
+
+</html>
