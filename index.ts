@@ -11,6 +11,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+app.get("/dashboard", (req: Request, res: Response) => {
+  res.sendFile(__dirname + "/public/build/index.html");
+});
+
+app.get("/profile", (req: Request, res: Response) => {
+  res.sendFile(__dirname + "/public/build/index.html");
+});
+
+app.get("/help", (req: Request, res: Response) => {
+  res.sendFile(__dirname + "/public/build/index.html");
+});
+
+app.get("/setting", (req: Request, res: Response) => {
+  res.sendFile(__dirname + "/public/build/index.html");
+});
+
+app.get("/signout", (req: Request, res: Response) => {
+  res.sendFile(__dirname + "/public/build/index.html");
+});
+
 app.get("/signin", async (_req: Request, res: Response) => {
   return res.sendFile(__dirname + "/public/html/signin.html");
 });
@@ -29,13 +49,15 @@ app.post("/signin", (req: Request, res: Response) => {
 });
 
 // signup
-app.post("/signup", (req:Request, res: Response) => {
-  console.log('called signup')
-  database.signup(req.body.userName, req.body.userEmail, req.body.userPassHashed).then((result) => {
-    res.send({status: result})
-  }).catch(() => {
-  })
-})
+app.post("/signup", (req: Request, res: Response) => {
+  console.log("called signup");
+  database
+    .signup(req.body.userName, req.body.userEmail, req.body.userPassHashed)
+    .then((result) => {
+      res.send({ status: result });
+    })
+    .catch(() => {});
+});
 
 // app body
 app.get("/dashboard", (req: Request, res: Response) => {
