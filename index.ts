@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import database from "./service/database";
 import cors from "cors";
+import authService from "./service/authService";
 
 const app: Application = express();
 const PORT = 3030;
@@ -27,6 +28,15 @@ app.post("/signin", (req: Request, res: Response) => {
     res.status(200).send(result);
   });
 });
+
+// signup
+app.post("/signup", (req:Request, res: Response) => {
+  console.log('called signup')
+  database.signup(req.body.userName, req.body.userEmail, req.body.userPassHashed).then((result) => {
+    res.send({status: result})
+  }).catch(() => {
+  })
+})
 
 // app body
 app.get("/dashboard", (req: Request, res: Response) => {

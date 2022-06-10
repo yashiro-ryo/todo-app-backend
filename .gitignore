@@ -1,0 +1,3 @@
+node_module/
+# frontendが入っている
+public/build/

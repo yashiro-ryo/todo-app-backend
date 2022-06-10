@@ -14,6 +14,44 @@ type Task = {
   isCompleted: boolean;
 };
 
+// signup
+async function signup(
+  userName: string,
+  userEmail: string,
+  userPassHashed: string
+) {
+  /**
+   * error code
+   * 1: sucessed signup
+   * 2: account exist
+   * 3: unexpected error
+   */
+  try {
+    // userEmailの存在チェック
+    const con = await mysql.createConnection(dbConfig);
+    const [result]: any = await con.query(
+      `select user_email from user where user_email = '${userEmail}'`
+    );
+    if (result.length > 0) {
+      console.log("アカウント既に存在");
+      con.end();
+      return 2;
+    } else if (result.length == 0) {
+      // 登録実行
+      await con.query(
+        `insert user values (null, '${userName}', '${userEmail}', '${userPassHashed}', null)`
+      );
+      con.end();
+      return 1;
+    } else {
+      con.end;
+      return 3;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 // signin query
 async function signin(userEmail: string, userPass: string) {
   try {
@@ -114,4 +152,5 @@ export default {
   updateTask,
   deleteTask,
   signin,
+  signup,
 } as const;
