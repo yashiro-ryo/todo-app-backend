@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import authService, { PayRoad, Setting } from "./authService";
 
 const dbConfig = {
   host: "localhost",
@@ -38,8 +39,9 @@ async function signup(
       return 2;
     } else if (result.length == 0) {
       // 登録実行
+      // isDeleteModalShowはデフォルトでは表示する
       await con.query(
-        `insert user values (null, '${userName}', '${userEmail}', '${userPassHashed}', null)`
+        `insert user values (null, '${userName}', '${userEmail}', '${userPassHashed}', null, 1)`
       );
       con.end();
       return 1;
@@ -57,26 +59,33 @@ async function signin(userEmail: string, userPass: string) {
   try {
     const con = await mysql.createConnection(dbConfig);
     const [result]: any = await con.query(
-      `select user_id, user_name, user_pass_hashed from user where user_email = '${userEmail}'`
+      `select user_id, user_name, user_pass_hashed, is_delete_modal_show from user where user_email = '${userEmail}'`
     );
-    con.end();
     if (result.length != 1) {
-      return { userId: null, errorMsg: "一致するユーザーが存在しません." };
+      con.end();
+      return { token: null, errorMsg: "一致するユーザーが存在しません." };
     }
-
-    console.log('userPass input :' + userPass);
-    console.log('userPass db :' + result[0].user_pass_hashed)
     if (userPass === result[0].user_pass_hashed) {
-      // 将来的にはトークンにする
+      const token = authService.sign(
+        {
+          userId: result[0].user_id,
+          userName: result[0].user_name,
+          setting: { isDeleteModalShow: result[0].is_delete_modal_show },
+        },
+        result[0].user_pass_hashed
+      );
+      await con.query(
+        `update user set user_access_token='${token}' where user_id = ${result[0].user_id}`
+      );
+      con.end();
       return {
-        userId: result[0].user_id,
-        userName: result[0].user_name,
+        token: token,
         errorMsg: "",
       };
     } else {
+      con.end();
       return {
-        userId: null,
-        userName: null,
+        token: null,
         errorMsg: "パスワードが違います.",
       };
     }
@@ -88,6 +97,9 @@ async function signin(userEmail: string, userPass: string) {
 // request query
 async function getAllTasks(userId: number) {
   try {
+    getUserIdByToken(
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJ1c2VyTmFtZSI6IuW-s-WztuWkqumDjiIsInNldHRpbmciOnsiaXNEZWxldGVNb2RhbFNob3ciOjF9LCJpYXQiOjE2NTQ5NTg4ODZ9.3QRqu_-DMA-nlhKvx39-ihsacMb0mKVhXMO5j0nE4no"
+    );
     const con = await mysql.createConnection(dbConfig);
     const [result]: any = await con.query(
       `select * from task where task_user_id = ${userId}`
@@ -147,6 +159,63 @@ async function deleteTask(taskId: number) {
   }
 }
 
+/**
+ * トークンからidを取得する関数
+ * @param token
+ * @returns userId
+ */
+async function getUserIdByToken(token: string) {
+  try {
+    const con = await mysql.createConnection(dbConfig);
+    const [result]: any = await con.query(
+      `select user_id, user_pass_hashed from user where user_access_token = '${token}'`
+    );
+    if (result.length != 1) {
+      console.log("more then 1 user matched");
+      con.end();
+      return -1;
+    }
+    // 認証
+    if(authenticateToken(token, result[0].user_id, result[0].user_pass_hashed) == 1){
+      con.end()
+      return result[0].user_id
+    }else {
+      con.end()
+      throw new Error('failed authentication')
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+/**
+ * tokenからidを抽出し、userIdと比較する
+ * @param token
+ * @param userId
+ * 認証成功時
+ * @return 1
+ * 認証失敗時
+ * @return -1
+ */
+function authenticateToken(
+  token: string,
+  userId: string,
+  userPass: string
+) {
+  const tokenDecoded: any = authService.decode(token, userPass);
+  if(tokenDecoded == null){
+    console.log('token is null')
+    return -1
+  }
+  if(tokenDecoded.userId === userId){
+    console.log('sucessed authentication')
+    return 1
+  }else {
+    console.log('failed authentication')
+    return -1
+  }
+}
+
 export default {
   getAllTasks,
   getTask,
@@ -155,4 +224,5 @@ export default {
   deleteTask,
   signin,
   signup,
+  getUserIdByToken,
 } as const;
