@@ -1,7 +1,7 @@
-import {Router, Response, Request} from 'express'
-import database from '../service/database'
+import { Router, Response, Request } from "express";
+import database from "../service/database";
 
-const router = Router()
+const router = Router();
 
 type Task = {
   taskName: string;
@@ -11,12 +11,16 @@ type Task = {
 };
 
 // REST API
-router.get("/tasks/:user_id", (req: Request, res: Response) => {
+router.get("/tasks", (req: Request, res: Response) => {
   console.log("requested GET /recipes");
-  // REST APIではアクセストークンをもとにユーザーIDの認証を今後実装
-  // 現時点ではpostにuserIdを載せる
-
-  database.getAllTasks(Number(req.params.user_id)).then((result) => {
+  const token = Array.isArray(req.headers.token)
+    ? req.headers.token[0]
+    : req.headers.token;
+  if (token == undefined || token.length == 0) {
+    console.log("token is null or token.length == 0");
+    return;
+  }
+  database.getAllTasks(token).then((result) => {
     res.status(200).json({
       task: result,
     });
@@ -24,7 +28,14 @@ router.get("/tasks/:user_id", (req: Request, res: Response) => {
 });
 
 router.get("/tasks/:id", (req: Request, res: Response) => {
-  console.log("requested GET /recipes/" + req.params.id);
+  const token = Array.isArray(req.headers.token)
+    ? req.headers.token[0]
+    : req.headers.token;
+  console.log("requested GET token :" + token);
+  if (token == undefined) {
+    return;
+  }
+
   database
     .getTask(Number(req.params.id))
     .then((result) => {
@@ -46,8 +57,14 @@ router.get("/tasks/:id", (req: Request, res: Response) => {
     });
 });
 
-router.post("/tasks/:user_id", (req: Request, res: Response) => {
-  console.log("requested POST /recipes");
+router.post("/tasks/", (req: Request, res: Response) => {
+  const token = Array.isArray(req.headers.token)
+    ? req.headers.token[0]
+    : req.headers.token;
+  console.log("requested POST token :" + token);
+  if (token == undefined) {
+    return;
+  }
   // TODO validation
   var task: Task = {
     taskName: req.body.taskName,
@@ -56,9 +73,8 @@ router.post("/tasks/:user_id", (req: Request, res: Response) => {
       req.body.deadline == null ? "2000/01/01 00:00:00" : req.body.deadline,
     isCompleted: req.body.isCompleted == null ? "" : req.body.isCompleted,
   };
-  console.log(task);
   database
-    .createTask(Number(req.params.user_id), task)
+    .createTask(token, task)
     .then(() => {
       res.status(200).json({
         message: "Recipe successfully created!",
@@ -76,7 +92,14 @@ router.post("/tasks/:user_id", (req: Request, res: Response) => {
 
 router.patch("/tasks/:task_id", (req: Request, res: Response) => {
   console.log("requested PATCH /recipes/" + req.params.task_id);
-  // TODO validation
+  const token = Array.isArray(req.headers.token)
+    ? req.headers.token[0]
+    : req.headers.token;
+
+  if (token == undefined) {
+    return;
+  }
+
   var task: Task = {
     taskName: req.body.taskName,
     describe: req.body.describe == null ? "" : req.body.describe,
@@ -85,7 +108,7 @@ router.patch("/tasks/:task_id", (req: Request, res: Response) => {
     isCompleted: req.body.isCompleted == null ? "" : req.body.isCompleted,
   };
   database
-    .updateTask(Number(req.params.task_id), task)
+    .updateTask(token, Number(req.params.task_id), task)
     .then((result) => {
       res.status(200).json({
         message: "Recipe successfully updated!",
@@ -100,9 +123,17 @@ router.patch("/tasks/:task_id", (req: Request, res: Response) => {
 });
 
 router.delete("/tasks/:task_id", (req: Request, res: Response) => {
+  const token = Array.isArray(req.headers.token)
+    ? req.headers.token[0]
+    : req.headers.token;
+
+  if (token == undefined) {
+    return;
+  }
+
   console.log("requested delete task" + req.params.task_id);
   database
-    .deleteTask(Number(req.params.task_id))
+    .deleteTask(token, Number(req.params.task_id))
     .then(() => {
       res.status(200).json({ message: "Recipe successfully removed!" });
     })
@@ -111,4 +142,4 @@ router.delete("/tasks/:task_id", (req: Request, res: Response) => {
     });
 });
 
-export default router
+export default router;

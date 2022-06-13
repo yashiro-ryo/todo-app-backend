@@ -94,12 +94,23 @@ async function signin(userEmail: string, userPass: string) {
   }
 }
 
+/* REST API */
 // request query
-async function getAllTasks(userId: number) {
+async function getAllTasks(token: string) {
+  // tokenからuserId取得
+  var userId = "";
+  await getUserIdByToken(token)
+    .then((result) => {
+      userId = result;
+      if (userId == null || userId.length == 0) {
+        return;
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+
   try {
-    getUserIdByToken(
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJ1c2VyTmFtZSI6IuW-s-WztuWkqumDjiIsInNldHRpbmciOnsiaXNEZWxldGVNb2RhbFNob3ciOjF9LCJpYXQiOjE2NTQ5NTg4ODZ9.3QRqu_-DMA-nlhKvx39-ihsacMb0mKVhXMO5j0nE4no"
-    );
     const con = await mysql.createConnection(dbConfig);
     const [result]: any = await con.query(
       `select * from task where task_user_id = ${userId}`
@@ -107,7 +118,7 @@ async function getAllTasks(userId: number) {
     con.end();
     return result;
   } catch (e) {
-    throw new Error("error :" + e);
+    console.log(e);
   }
 }
 
@@ -124,7 +135,16 @@ async function getTask(id: number) {
   }
 }
 
-async function createTask(userId: number, task: Task) {
+async function createTask(token: string, task: Task) {
+  // tokenからuserId取得
+  var userId = "";
+  await getUserIdByToken(token).then((result) => {
+    userId = result;
+    if (userId == null || userId.length == 0) {
+      return;
+    }
+  });
+
   try {
     const con = await mysql.createConnection(dbConfig);
     await con.query(
@@ -133,11 +153,24 @@ async function createTask(userId: number, task: Task) {
     con.end();
   } catch (e) {
     console.log(e);
-    throw new Error("error :" + e);
   }
 }
 
-async function updateTask(taskId: number, task: Task) {
+async function updateTask(token: string, taskId: number, task: Task) {
+  // tokenから編集権限があるかどうか確認
+  var isCanEdit = -1
+  await isUserIdCanEditTask(token, taskId).then((result) => {
+    if(result == undefined){
+      return
+    }
+    isCanEdit = result
+  })
+
+  if(isCanEdit != 1){
+    console.log('編集権限がありません')
+    return
+  }
+
   try {
     const con = await mysql.createConnection(dbConfig);
     await con.query(
@@ -145,17 +178,30 @@ async function updateTask(taskId: number, task: Task) {
     );
   } catch (e) {
     console.log(e);
-    throw new Error("error :" + e);
   }
 }
 
-async function deleteTask(taskId: number) {
+async function deleteTask(token: string, taskId: number) {
+  // tokenから編集権限があるかどうか確認
+  var isCanEdit = -1
+  await isUserIdCanEditTask(token, taskId).then((result) => {
+    if(result == undefined){
+      return
+    }
+    isCanEdit = result
+  })
+
+  if(isCanEdit != 1){
+    console.log('編集権限がありません')
+    return
+  }
+
   try {
     const con = await mysql.createConnection(dbConfig);
     await con.query(`delete from task where task_id = ${taskId}`);
     con.end();
   } catch (e) {
-    throw new Error("error :" + e);
+    console.log(e);
   }
 }
 
@@ -165,6 +211,7 @@ async function deleteTask(taskId: number) {
  * @returns userId
  */
 async function getUserIdByToken(token: string) {
+  var userId = "";
   try {
     const con = await mysql.createConnection(dbConfig);
     const [result]: any = await con.query(
@@ -173,18 +220,23 @@ async function getUserIdByToken(token: string) {
     if (result.length != 1) {
       console.log("more then 1 user matched");
       con.end();
-      return -1;
+      return "-1";
     }
     // 認証
-    if(authenticateToken(token, result[0].user_id, result[0].user_pass_hashed) == 1){
-      con.end()
-      return result[0].user_id
-    }else {
-      con.end()
-      throw new Error('failed authentication')
+    if (
+      authenticateToken(token, result[0].user_id, result[0].user_pass_hashed) ==
+      1
+    ) {
+      con.end();
+      userId = result[0].user_id;
+    } else {
+      con.end();
+      return "-1";
     }
+    return userId;
   } catch (e) {
     console.log(e);
+    return "-1";
   }
 }
 
@@ -197,22 +249,45 @@ async function getUserIdByToken(token: string) {
  * 認証失敗時
  * @return -1
  */
-function authenticateToken(
-  token: string,
-  userId: string,
-  userPass: string
-) {
+function authenticateToken(token: string, userId: string, userPass: string) {
   const tokenDecoded: any = authService.decode(token, userPass);
-  if(tokenDecoded == null){
-    console.log('token is null')
-    return -1
+  if (tokenDecoded == null) {
+    console.log("token is null");
+    return -1;
   }
-  if(tokenDecoded.userId === userId){
-    console.log('sucessed authentication')
-    return 1
-  }else {
-    console.log('failed authentication')
-    return -1
+  if (tokenDecoded.userId === userId) {
+    console.log("sucessed authentication");
+    return 1;
+  } else {
+    console.log("failed authentication");
+    return -1;
+  }
+}
+
+async function isUserIdCanEditTask(token: string, taskId: number) {
+  var userId = "";
+  await getUserIdByToken(token).then((result) => {
+    userId = result;
+    if (userId == null || userId.length == 0) {
+      return -1;
+    }
+  });
+
+  try {
+    const con = await mysql.createConnection(dbConfig);
+    const [result]: any = await con.query(
+      `select task_user_id from task where task_id = ${taskId}`
+    );
+    if (result.length == 0 || result == null) {
+      return -1;
+    }
+
+    if (userId == result[0].task_user_id) {
+      console.log("matched");
+      return 1;
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -225,4 +300,5 @@ export default {
   signin,
   signup,
   getUserIdByToken,
+  isUserIdCanEditTask,
 } as const;
