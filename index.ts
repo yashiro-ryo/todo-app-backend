@@ -3,6 +3,7 @@ import database from "./service/database";
 import cors from "cors";
 import authRouter from "./router/authRouter";
 import restRouter from "./router/restRouter";
+import userRouter from "./router/userRouter";
 
 const app: Application = express();
 const PORT = 3030;
@@ -15,6 +16,7 @@ app.use(express.static("public"));
 
 app.use("/", authRouter);
 app.use("/", restRouter);
+app.use("/", userRouter);
 
 app.get("/signin", (req: Request, res: Response) => {
   res.sendFile(__dirname + "/public/html/signin.html");

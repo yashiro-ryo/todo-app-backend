@@ -158,17 +158,17 @@ async function createTask(token: string, task: Task) {
 
 async function updateTask(token: string, taskId: number, task: Task) {
   // tokenから編集権限があるかどうか確認
-  var isCanEdit = -1
+  var isCanEdit = -1;
   await isUserIdCanEditTask(token, taskId).then((result) => {
-    if(result == undefined){
-      return
+    if (result == undefined) {
+      return;
     }
-    isCanEdit = result
-  })
+    isCanEdit = result;
+  });
 
-  if(isCanEdit != 1){
-    console.log('編集権限がありません')
-    return
+  if (isCanEdit != 1) {
+    console.log("編集権限がありません");
+    return;
   }
 
   try {
@@ -183,17 +183,17 @@ async function updateTask(token: string, taskId: number, task: Task) {
 
 async function deleteTask(token: string, taskId: number) {
   // tokenから編集権限があるかどうか確認
-  var isCanEdit = -1
+  var isCanEdit = -1;
   await isUserIdCanEditTask(token, taskId).then((result) => {
-    if(result == undefined){
-      return
+    if (result == undefined) {
+      return;
     }
-    isCanEdit = result
-  })
+    isCanEdit = result;
+  });
 
-  if(isCanEdit != 1){
-    console.log('編集権限がありません')
-    return
+  if (isCanEdit != 1) {
+    console.log("編集権限がありません");
+    return;
   }
 
   try {
@@ -291,6 +291,25 @@ async function isUserIdCanEditTask(token: string, taskId: number) {
   }
 }
 
+async function getUserInfo(token: string) {
+  try {
+    const con = await mysql.createConnection(dbConfig);
+    const [result]: any = await con.query(
+      `select user_id, user_name from user where user_access_token = '${token}'`
+    );
+    if (result.length > 1) {
+      console.log("matched more than 1 user");
+      con.end();
+      return;
+    }
+
+    con.end();
+    return { userId: result[0].user_id, userName: result[0].user_name };
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 export default {
   getAllTasks,
   getTask,
@@ -301,4 +320,5 @@ export default {
   signup,
   getUserIdByToken,
   isUserIdCanEditTask,
+  getUserInfo,
 } as const;
