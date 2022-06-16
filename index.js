@@ -41,7 +41,7 @@ app.get("/signout", (req, res) => {
 });
 // 404 Not Found
 app.use((req, res) => {
-    res.status(404).send("404 Not Found !");
+    res.status(404).sendFile(__dirname + '/public/html/signin.html');
 });
 try {
     app.listen(PORT, () => {

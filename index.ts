@@ -49,7 +49,7 @@ app.get("/signout", (req: Request, res: Response) => {
 
 // 404 Not Found
 app.use((req: Request, res: Response) => {
-  res.status(404).send("404 Not Found !");
+  res.status(404).sendFile(__dirname + '/public/html/signin.html');
 });
 
 try {
