@@ -2,10 +2,10 @@ import mysql from "mysql2/promise";
 import authService, { PayRoad, Setting } from "./authService";
 
 const dbConfig = {
-  host: "localhost",
-  user: "root",
-  database: "todo-app",
-  password: "LTDEXPuzushio22@",
+  host: "us-cdbr-east-05.cleardb.net",
+  user: "bb667d8c95d4b4",
+  database: "heroku_343c33fe017fe32",
+  password: "9af8a599",
 };
 
 type Task = {
