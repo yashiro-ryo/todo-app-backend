@@ -10,7 +10,7 @@ const restRouter_1 = __importDefault(require("./router/restRouter"));
 const userRouter_1 = __importDefault(require("./router/userRouter"));
 const app = (0, express_1.default)();
 const PORT = process.env.port || 5000;
-app.set("port", PORT);
+app.set("port", (PORT));
 app.use((0, cors_1.default)({ origin: true, credentials: true }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));

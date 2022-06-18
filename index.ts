@@ -10,7 +10,7 @@ import userRouter from "./router/userRouter";
 const app: Application = express();
 const PORT = process.env.port || 5000;
 
-app.set("port", PORT);
+app.set("port", (PORT));
 app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
