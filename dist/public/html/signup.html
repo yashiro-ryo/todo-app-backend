@@ -58,7 +58,7 @@
           console.log(result)
           if(result.data.status == 1){
             // アカウント作成成功
-            window.location.href="https://todo-app-yashiro.herokuapp.com:5000/signin"
+            window.location.href="https://todo-app-yashiro.herokuapp.com/signin"
             return
           }else if(result.data.status == 2){
             errorMsg.textContent = 'アカウントが存在しました'
