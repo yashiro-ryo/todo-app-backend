@@ -4,8 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const fs_1 = __importDefault(require("fs"));
-const https_1 = __importDefault(require("https"));
 const cors_1 = __importDefault(require("cors"));
 const authRouter_1 = __importDefault(require("./router/authRouter"));
 const restRouter_1 = __importDefault(require("./router/restRouter"));
@@ -13,10 +11,15 @@ const userRouter_1 = __importDefault(require("./router/userRouter"));
 const app = (0, express_1.default)();
 const PORT = process.env.port || 5000;
 app.set("port", process.env.port || 5000);
-const server = https_1.default.createServer({
-    key: fs_1.default.readFileSync("./key/privatekey.pem"),
-    cert: fs_1.default.readFileSync("./key/cert.pem"),
-}, app);
+/*
+const server = https.createServer(
+  {
+    key: fs.readFileSync("./key/privatekey.pem"),
+    cert: fs.readFileSync("./key/cert.pem"),
+  },
+  app
+);
+*/
 app.use((0, cors_1.default)({ origin: true, credentials: true }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -51,8 +54,8 @@ app.use((req, res) => {
     res.status(404).sendFile(__dirname + "/public/html/signin.html");
 });
 try {
-    server.listen(PORT, () => {
-        console.log(`dev server running at: https://0.0.0.0:${PORT}/`);
+    app.listen(PORT, () => {
+        console.log(`dev server running at: ${PORT}`);
     });
 }
 catch (e) {

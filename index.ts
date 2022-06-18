@@ -11,7 +11,7 @@ const app: Application = express();
 const PORT = process.env.port || 5000;
 
 app.set("port", process.env.port || 5000);
-
+/*
 const server = https.createServer(
   {
     key: fs.readFileSync("./key/privatekey.pem"),
@@ -19,7 +19,7 @@ const server = https.createServer(
   },
   app
 );
-
+*/
 app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
@@ -65,8 +65,8 @@ app.use((req: Request, res: Response) => {
 });
 
 try {
-  server.listen(PORT, () => {
-    console.log(`dev server running at: https://0.0.0.0:${PORT}/`);
+  app.listen(PORT, () => {
+    console.log(`dev server running at: ${PORT}`);
   });
 } catch (e) {
   if (e instanceof Error) {
