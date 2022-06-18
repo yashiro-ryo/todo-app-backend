@@ -8,9 +8,9 @@ import restRouter from "./router/restRouter";
 import userRouter from "./router/userRouter";
 
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
-app.set("port", process.env.PORT || 5000);
+app.set("port", 5000);
 
 const server = https.createServer(
   {
