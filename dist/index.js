@@ -11,8 +11,8 @@ const authRouter_1 = __importDefault(require("./router/authRouter"));
 const restRouter_1 = __importDefault(require("./router/restRouter"));
 const userRouter_1 = __importDefault(require("./router/userRouter"));
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 5000;
-app.set("port", process.env.PORT || 5000);
+const PORT = 5000;
+app.set("port", 5000);
 const server = https_1.default.createServer({
     key: fs_1.default.readFileSync("./key/privatekey.pem"),
     cert: fs_1.default.readFileSync("./key/cert.pem"),
