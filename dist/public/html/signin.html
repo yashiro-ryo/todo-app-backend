@@ -50,7 +50,7 @@
       // password hash
       sha256(formPass.value).then((passwordHashed) => {
         // post signin data
-        axios.post('http://localhost:3030/signin', {
+        axios.post('http://0.0.0.0:5000/signin', {
           userEmail: formEmail.value,
           userPass: passwordHashed
         }).then((result) => {
@@ -62,7 +62,7 @@
             // ログイン成功
             localStorage.setItem("data-user-token", result.data.token)
             // redirect
-            window.location.href = "http://localhost:3030/dashboard"
+            window.location.href = "http://0.0.0.0:5000/dashboard"
             return
           }
         }).catch((e) => {
