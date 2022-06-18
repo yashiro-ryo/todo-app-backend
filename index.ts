@@ -10,16 +10,7 @@ import userRouter from "./router/userRouter";
 const app: Application = express();
 const PORT = process.env.port || 5000;
 
-app.set("port", process.env.port || 5000);
-/*
-const server = https.createServer(
-  {
-    key: fs.readFileSync("./key/privatekey.pem"),
-    cert: fs.readFileSync("./key/cert.pem"),
-  },
-  app
-);
-*/
+app.set("port", PORT);
 app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
