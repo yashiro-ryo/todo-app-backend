@@ -8,6 +8,15 @@ const dbConfig = {
   password: "9af8a599",
 };
 
+/*
+const dbConfig = {
+  host: 'localhost',
+  user: 'root',
+  database: 'todo-app',
+  password: 'LTDEXPuzushio22@'
+}
+*/
+
 type Task = {
   taskName: string;
   describe: string | null;
