@@ -45,6 +45,7 @@ app.get("/signout", (req, res) => {
 app.use((req, res) => {
     res.status(404).sendFile(__dirname + "/public/html/signin.html");
     console.log('route :' + __dirname);
+    console.log('public path :' + __dirname + 'public');
 });
 try {
     app.listen(PORT, () => {
