@@ -1,7 +1,6 @@
 import express, { Application, Request, Response, Router } from "express";
 import database from "./service/database";
-import fs from "fs";
-import https from "https";
+import path from "path";
 import cors from "cors";
 import authRouter from "./router/authRouter";
 import restRouter from "./router/restRouter";
@@ -15,7 +14,7 @@ app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", authRouter);
 app.use("/", restRouter);
