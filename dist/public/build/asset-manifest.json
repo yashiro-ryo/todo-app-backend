@@ -9,7 +9,7 @@
     "787.cda612ba.chunk.js.map": "/build/static/js/787.cda612ba.chunk.js.map"
   },
   "entrypoints": [
-    "build/static/css/main.674b0765.css",
-    "build/static/js/main.3d7f6e88.js"
+    "/build/static/css/main.674b0765.css",
+    "/build/static/js/main.3d7f6e88.js"
   ]
 }
