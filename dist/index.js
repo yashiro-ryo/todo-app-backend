@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
 const authRouter_1 = __importDefault(require("./router/authRouter"));
 const restRouter_1 = __importDefault(require("./router/restRouter"));
@@ -14,7 +15,7 @@ app.set("port", PORT);
 app.use((0, cors_1.default)({ origin: true, credentials: true }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.use(express_1.default.static("public"));
+app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 app.use("/", authRouter_1.default);
 app.use("/", restRouter_1.default);
 app.use("/", userRouter_1.default);
@@ -43,6 +44,7 @@ app.get("/signout", (req, res) => {
 // 404 Not Found
 app.use((req, res) => {
     res.status(404).sendFile(__dirname + "/public/html/signin.html");
+    console.log('route :' + __dirname);
 });
 try {
     app.listen(PORT, () => {
