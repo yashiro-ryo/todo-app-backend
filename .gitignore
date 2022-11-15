@@ -1,4 +1,4 @@
-node_module/
+/node_module
 # frontendが入っている
-public/build/
-dist/
+/public/build
+/dist
