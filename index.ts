@@ -7,7 +7,7 @@ import restRouter from "./router/restRouter";
 import userRouter from "./router/userRouter";
 
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 
 app.set("port", PORT);
 app.use(cors({ origin: true, credentials: true }));

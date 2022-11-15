@@ -14,7 +14,8 @@
     "npm": "8.3.0"
   },
   "scripts": {
-    "start": "node ./dist/index.js"
+    "start": "tsc && PORT=5050 node ./dist/index.js",
+    "production": "tsc && node ./dist/index.js"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
